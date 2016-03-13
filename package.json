@@ -10,7 +10,7 @@
     "eslint:fix": "eslint ./src ./spec --fix",
     "start": "webpack-dev-server --hot --inline --progress --colors -d",
     "c9-start": "webpack-dev-server --host $IP --port $PORT --hot --inline --progress --colors -d",
-    "build": "webpack"
+    "build": "webpack --progress -p --config ./webpack.config.production"
   },
   "repository": {
     "type": "git",
@@ -43,6 +43,7 @@
     "eslint-config-google": "0.4.0",
     "eslint-loader": "1.3.0",
     "eslint-plugin-react": "3.16.1",
+    "extract-text-webpack-plugin": "^1.0.1",
     "http-server": "0.8.5",
     "lodash": "4.5.0",
     "node-sass": "3.4.2",
