@@ -10,7 +10,8 @@
     "eslint:fix": "eslint ./src ./spec --fix",
     "start": "webpack-dev-server --hot --inline --progress --colors -d",
     "c9-start": "webpack-dev-server --host $IP --port $PORT --hot --inline --progress --colors -d",
-    "build": "webpack --progress -p --config ./webpack.config.production"
+    "build": "webpack --progress",
+    "build:production": "webpack --progress -p --config ./webpack.config.production"
   },
   "repository": {
     "type": "git",
