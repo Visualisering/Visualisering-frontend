@@ -1,119 +1,152 @@
 import React from "react";
+import settings from "./matrix-settings";
 
-// static texts
-const projectText = "visualizing source code from github repo:";
-const fileNameText = "filename: ";
-const repoOwner = "owner: ";
-const contributorTitle = "contributors: ";
-
-// matrix settings
-// font size will affect the size of the font and
-// the number of drop columns
-const fontSize = 12;
-const fontColor = "green";
-const fontFamily = "courier";
-const contextFont = fontSize + "px " + fontFamily;
-
-// eslint cant find window. change these in initMatrix()
-// const matrixWidth = window.innerWidth;
-// const matrixHeight = window.innerHeight;
-
-// Lower opacity means the characters will leave a longer
-// tail and the background color will be lighter
-const contextOpacity = 0.05;
-
-// contextBackground is used to reset the background before
-// the next set of characters is rendered.
-const contextBackground = "rgba(0, 0, 0, " + contextOpacity + ")";
-
-// speed in milliseconds - lower is faster
-const speed = 30;
-
-// this adds an initial vertical position to each drop point.
-// The value is multiplied by fontSize when rendered in makeItRain().
-// This means that  1 = Initially all drops will start from the top
-//                      at the same time
-//                  someValueGreaterThan c.height = all drops start randomly
-const initialDropValue = 1;
-
-// used to determine whether a character drop should restart at the top.
-// used as: if (Math.random() > chanceOfDropReset)
-const chanceOfDropReset = 0.98;
+let initialized = false;
+let currentText = "";
 
 export default class GitHubSourceCode extends React.Component {
+  constructor(props) {
+    super(props);
+    this.dataCounter = 0;
+    this.loopInfo = this.loopInfo.bind(this);
+    this.resetMatrix = this.resetMatrix.bind(this);
+    this.initMatrix = this.initMatrix.bind(this);
+    this.getNextData = this.getNextData.bind(this);
+    this.characterSet = "temporary fake code letters hello world lorem ipsum";
+  }
+
   componentDidMount() {
+    this.c = document.getElementById("matrix-canvas");
+    this.ctx = this.c.getContext("2d");
+    this.infoSection = document.querySelector(".project-info-section");
+
+    // run initMatrix the first time to get things going
+    if (!initialized) {
+      this.initMatrix();
+    }
+
+    setInterval(() => {
+      this.code = this.props.data[this.dataCounter].code;
+      this.ctx.restore();
+      this.resetMatrix();
+    }, settings.updateFrequency);
+  }
+
+  getNextData() {
+    if (this.dataCounter >= this.props.data.length - 1) {
+      this.dataCounter = 0;
+    } else {
+      this.dataCounter++;
+    }
+    return this.props.data[this.dataCounter];
+  }
+
+  resetMatrix() {
+    clearInterval(this.interval);
+    clearInterval(this.infoInterval);
+    this.ctx.clearRect(0, 0, this.c.width, this.c.height);
+    this.ctx.restore();
+    this.characterSet = this.getNextData().code;
     this.initMatrix();
+    this.loopInfo();
   }
 
   getData() {
-    const dataComponents = this.props.data.map(data => {
-      return (
-        <div key={data.id} className="matrix-visualization">
+    return (
+        <div className="matrix-visualization">
+          <div className="matrix-info-section">
+            <div className="project-info-section">
+            </div>
+            <div id="low"></div>
+          </div>
           <div className="matrix-code-section">
             <canvas id="matrix-canvas"></canvas>
           </div>
-          <div className="matrix-info-section">
-            <div className="project-info-section">
-              <div className="project-info info-section-text">
-                {projectText}
-              </div>
-              <div className="project-info project-name info-section-name">
-                <h2>{data.project}</h2>
-              </div>
-            </div>
-            <div className="filename-section">
-              <div className="filename-text info-section-text">
-                {fileNameText}
-              </div>
-              <div className="filename-name info-section-name">
-                <h4>
-                  {data.fileName}
-                </h4>
-              </div>
-            </div>
-            <div className="github-user-section">
-              <div className="github-user-text info-section-text">
-                {repoOwner}
-              </div>
-              <div className="github-user info-section-name">
-                <h4>
-                  {data.githubUser}
-                </h4>
-              </div>
-            </div>
-            <div className="contributors-section">
-              <div className="contributors-text info-section-text">
-                {contributorTitle}
-              </div>
-              <div className="contributor-list">
-                <ul>
-                  {data.contributors.map(contributor => {
-                    return <li key={contributor.id}>{contributor}</li>;
-                  })}
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       );
-    });
+  }
 
-    return dataComponents;
+  loopInfo() {
+    const infoSection = document.querySelector(".project-info-section");
+    infoSection.innerHTML = "";
+    const low = document.getElementById("low");
+    low.innerHTML = "_";
+    const texts = [];
+    const data = this.props.data[this.dataCounter];
+    texts.push(settings.projectText + data.repo);
+    texts.push(settings.fileNameText + data.filename);
+    texts.push(settings.repoOwner + data.owner);
+    let ms = 100;
+    let show = false;
+    let textCounter = 0;
+    let waitCounter = 0;
+    let index = 0;
+    currentText = "";
+    let interval;
+
+    /**
+     * simulates writing in a console
+     */
+    function write() {
+      currentText = texts[textCounter];
+      clearInterval(interval);
+      if (index <= currentText.length) {
+        infoSection.innerHTML += currentText.charAt(index);
+        index++;
+        ms = 100;
+      } else if (index > currentText.length) {
+        if (waitCounter > 5) {
+          waitCounter = 0;
+          clearInterval(interval);
+          if (textCounter === texts.length - 1) {
+            textCounter = 0;
+          } else {
+            textCounter++;
+          }
+          infoSection.innerHTML = "";
+          index = 0;
+        } else {
+          clearInterval(this.infoInterval);
+          ms = 500;
+          blinkingLowDash();
+          waitCounter++;
+        }
+      }
+      clearInterval(this.infoInterval);
+      this.infoInterval = setInterval(write, ms);
+    }
+
+    /**
+     * sets the value for the low dash blink effect
+     */
+    function blinkingLowDash() {
+      if (show) {
+        low.innerHTML = "_";
+        show = false;
+      } else {
+        low.innerHTML = "";
+        show = true;
+      }
+    }
+    clearInterval(this.infoInterval);
+    this.infoInterval = setInterval(write, ms);
   }
 
   initMatrix() {
-    const c = document.querySelector("#matrix-canvas");
-    const ctx = c.getContext("2d");
+    if (!initialized) {
+      initialized = true;
+    }
+    const c = this.c;
+    const ctx = this.ctx;
     c.width = window.innerWidth;
     c.height = window.innerHeight;
-    ctx.font = contextFont;
-
-    const columns = c.width / fontSize;
-    const characterSet = this.props.data[0].sourceCode.split("");
+    ctx.font = settings.contextFont;
+    const columns = c.width / settings.fontSize;
+    let characterSet = "";
+    characterSet = new Buffer(this.characterSet, "base64").toString("ascii");
     const drops = [];
-
     for (let i = 0; i < columns; i++) {
-      drops[i] = initialDropValue;
+      drops[i] = settings.initialDropValue;
     }
 
     /**
@@ -122,17 +155,17 @@ export default class GitHubSourceCode extends React.Component {
     function makeItRain() {
       // reset canvas before next character rendering
       // then set it back to the font color
-      ctx.fillStyle = contextBackground;
+      ctx.fillStyle = settings.contextBackground;
       ctx.fillRect(0, 0, c.width, c.height);
-      ctx.fillStyle = fontColor;
+      ctx.fillStyle = settings.fontColor;
 
       for (let i = 0; i < drops.length; i++) {
         const char = characterSet[Math.floor(Math.random() * characterSet.length)];
-        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+        ctx.fillText(char, i * settings.fontSize, drops[i] * settings.fontSize);
 
         // if a character travels past the window height it might reset and
         // start from the top. this is what makes the drops appear randomly
-        if (drops[i] * fontSize > c.height && Math.random() > chanceOfDropReset) {
+        if (drops[i] * settings.fontSize > c.height && Math.random() > settings.chanceOfDropReset) {
           drops[i] = 0;
         }
 
@@ -140,7 +173,7 @@ export default class GitHubSourceCode extends React.Component {
       }
     }
 
-    setInterval(makeItRain, speed);
+    this.interval = setInterval(makeItRain, settings.speed);
   }
 
   render() {

@@ -5,8 +5,9 @@ import Matrix from "../components/matrix";
 const MatrixPage = ({data}) => <Matrix data={data} />;
 
 const mapStateToProps = appState => {
+  console.log(appState);
   return {
-    data: appState.components.matrix.data
+    data: appState.components.commits
   };
 };
 
