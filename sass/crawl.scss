@@ -17,8 +17,6 @@
 
   * { padding: 0; margin: 0; }
 
-
-
   p#start
   {
     position: relative;
@@ -74,16 +72,17 @@
   #titles
   {
     position: absolute;
-    width: 18em;
+    width: 70%;
     height: 50em;
     bottom: 0;
     left: 50%;
     margin-left: -9em;
     font-size: 350%;
     text-align: justify;
-    // overflow: hidden;
+    white-space: pre-wrap;
+    overflow: hidden;
     transform-origin: 50% 100%;
-    transform: perspective(300px) rotateX(25deg);
+    transform: perspective(500px) rotateX(25deg);
   }
 
   #titles:after
@@ -106,7 +105,8 @@
 
   #titles p.center
   {
-    text-align: center;
+    text-align: left;
+    white-space: pre-wrap;
   }
 
   #titles a
@@ -119,12 +119,12 @@
   {
     position: absolute;
     top: 100%;
-    animation: scroll 100s linear 4s infinite;
+    animation: scroll 1000s linear 4s infinite;
   }
 
   /* animation */
   @keyframes scroll {
     0% { top: 100%; }
-    100% { top: -170%; }
+    100% { top: -2000%; }
   }
 }
