@@ -90,7 +90,7 @@ export default class Earth extends Component {
   }
 
   setTime(time) {
-    this.setState({time: time});
+    this.setState({time});
   }
 
   renderAnimation() {
