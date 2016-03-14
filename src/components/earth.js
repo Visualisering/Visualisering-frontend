@@ -40,7 +40,7 @@ export default class Earth extends Component {
     const earth = new THREE.Mesh(geometry, material);
 
     container.appendChild(this.renderer.domElement);
-    material.map = THREE.ImageUtils.loadTexture("assets/pictures/earth.png");
+    material.map = THREE.ImageUtils.loadTexture(this.props.settings.texture);
 
     this.scene.add(earth);
     this.camera.position.z = 1.3;
@@ -98,7 +98,7 @@ export default class Earth extends Component {
       return;
     }
 
-    this.scene.rotation.y += 0.009;
+    this.scene.rotation.y += this.props.settings.earthRotationSpeed;
 
     if (this.state.time % 1000 === 0) {
       this.scene.remove(this.commits);
@@ -118,7 +118,7 @@ export default class Earth extends Component {
     }
 
     this.renderer.render(this.scene, this.camera);
-    this.setState({time: this.state.time + 1000000});
+    this.setState({time: this.state.time + this.props.settings.timePerRender});
   }
 
   visualizeCommit(commit, time) {
@@ -148,8 +148,9 @@ export default class Earth extends Component {
 
     const line = new THREE.Line(
       geometry,
-      new THREE.LineBasicMaterial({color: 0xff0000, opacity: 3})
-      );
+      new THREE.LineBasicMaterial({color: this.props.settings.lineColor,
+                                   opacity: this.props.settings.lineOpacity})
+    );
 
     this.commits.add(line);
   }
