@@ -5,3 +5,5 @@ bundle.js
 
 # webstorm directory
 .idea
+build/
+
