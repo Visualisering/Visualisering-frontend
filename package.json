@@ -12,7 +12,8 @@
     "c9-start": "webpack-dev-server --host $IP --port $PORT --hot --inline --progress --colors -d",
     "build": "webpack --progress",
     "build:production": "webpack --progress -p --config ./webpack.config.production",
-    "postbuild:production": "mkdir -p build && cp -r ./assets index.html bundle.js build"
+    "postbuild:production": "mkdir -p build && cp -r ./assets index.html bundle.js build",
+    "clean": "rm -r ./build"
   },
   "repository": {
     "type": "git",
