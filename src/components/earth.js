@@ -63,7 +63,8 @@ export default class Earth extends Component {
   }
 
   startAnimation(nextProps) {
-    const time = nextProps.data[nextProps.data.length - 1].time;
+    const reversedArray = nextProps.data.reverse();
+    const time = reversedArray[nextProps.data.length - 1].time;
     this.setState({time});
 
     const animationLoop = () => {
